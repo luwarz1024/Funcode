@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Funcode</title>
+<style>
+body { font-family: monospace; background: #1e1e1e; color: #fff; padding: 20px; }
+textarea { width: 100%; height: 120px; margin-bottom: 10px; background: #2e2e2e; color: #fff; border: 1px solid #555; padding: 5px; }
+button { padding: 10px; margin-right: 10px; background: #444; color: #fff; border: none; cursor: pointer; }
+button:hover { background: #666; }
+</style>
+</head>
+<body>
+<h2>Funcode</h2>
+
+<label>入力:</label>
+<textarea id="inputText"></textarea>
+
+<div>
+<button id="encodeBtn">暗号化</button>
+<button id="decodeBtn">復号化</button>
+</div>
+
+<label>出力:</label>
+<textarea id="outputText" readonly></textarea>
+
+<script>
+const encodeMap = { '>':'→','<':'←','%':'•' };
+const decodeMap = { '→':'>','←':'<','•':'%' };
+const NOISE_CHARS = ['+','-','@','#',';','~','`','^','?','/','(',')'];
+
+function insertNoise(str, count=30){
+    let noise = '';
+    for(let i=0;i<count;i++){
+        const rand = Math.floor(Math.random()*NOISE_CHARS.length);
+        noise += NOISE_CHARS[rand];
+    }
+    return str + noise;
+}
+
+function applyObfuscation(code){
+    return code.split('').map(c=>encodeMap[c]||c).join('');
+}
+function reverseObfuscation(code){
+    return code.split('').map(c=>decodeMap[c]||c).join('');
+}
+
+function bufferToFunEncryption(buffer){
+    let result = '';
+    let prev = 0;
+    for(let byte of buffer){
+        const diff = byte-prev;
+        if(diff>0) result += '>'.repeat(diff);
+        else result += '<'.repeat(-diff);
+        result = insertNoise(result);
+        result += '%';
+        prev = byte;
+    }
+    return applyObfuscation(result);
+}
+
+function funEncryptionToBuffer(code){
+    const raw = reverseObfuscation(code);
+    let pointer = 0;
+    const bytes = [];
+    for(let char of raw){
+        if(char === '>') pointer++;
+        else if(char === '<') pointer--;
+        else if(char === '%') bytes.push(pointer);
+        // ノイズは無視
+    }
+    return Uint8Array.from(bytes);
+}
+
+function textToBuffer(str){
+    return new TextEncoder().encode(str);
+}
+function bufferToText(buf){
+    return new TextDecoder().decode(buf);
+}
+
+// ---- ボタン処理 ----
+document.getElementById('encodeBtn').addEventListener('click', ()=>{
+    const input = document.getElementById('inputText').value;
+    const buf = textToBuffer(input);
+    const enc = bufferToFunEncryption(buf);
+    document.getElementById('outputText').value = enc;
+});
+
+document.getElementById('decodeBtn').addEventListener('click', ()=>{
+    const input = document.getElementById('inputText').value;
+    try{
+        const buf = funEncryptionToBuffer(input);
+        const text = bufferToText(buf);
+        document.getElementById('outputText').value = text;
+    }catch(e){
+        document.getElementById('outputText').value = '復号失敗: ' + e.message;
+    }
+});
+</script>
+</body>
+</html>
