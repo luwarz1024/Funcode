@@ -26,7 +26,7 @@ button:hover { background: #666; }
 
 <script>
 const encodeMap = { '>':'w','<':'ѡ','%':'ᴡ' };
-const decodeMap = { 'ᴡ':'>','ѡ':'<','ᴡ':'%' };
+const decodeMap = { 'w':'>','ѡ':'<','ᴡ':'%' };
 const NOISE_CHARS = ['+','-','@','#',';','~','`','^','?','/','(',')'];
 
 function insertNoise(str, count=0){
@@ -100,4 +100,5 @@ document.getElementById('decodeBtn').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
 
