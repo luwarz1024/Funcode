@@ -25,11 +25,11 @@ button:hover { background: #666; }
 <textarea id="outputText" readonly></textarea>
 
 <script>
-const encodeMap = { '>':'→','<':'←','%':'•' };
-const decodeMap = { '→':'>','←':'<','•':'%' };
+const encodeMap = { '>':'w','<':'ѡ','%':'ᴡ' };
+const decodeMap = { 'ᴡ':'>','ѡ':'<','ᴡ':'%' };
 const NOISE_CHARS = ['+','-','@','#',';','~','`','^','?','/','(',')'];
 
-function insertNoise(str, count=30){
+function insertNoise(str, count=0){
     let noise = '';
     for(let i=0;i<count;i++){
         const rand = Math.floor(Math.random()*NOISE_CHARS.length);
@@ -100,3 +100,4 @@ document.getElementById('decodeBtn').addEventListener('click', ()=>{
 </script>
 </body>
 </html>
+
